@@ -1,6 +1,6 @@
 require 'wry_inject'
 
-class Test
+class MyClass
   include WryInject
 
   def initialize(other)
@@ -21,7 +21,7 @@ class Test
 end
 
 RSpec.describe WryInject do
-  subject { Test.class_with(amount: 5, units: 6) }
+  subject { MyClass.class_with(amount: 5, units: 6) }
 
   it "can use injected variables" do
     expect(subject.new(0).double_amount).to eq(10)
