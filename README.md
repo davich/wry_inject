@@ -15,44 +15,54 @@ class Order
   end
 
   def total
-    @items.sum { |item| pricing_repo.price_for(item) }
+    @items.sum { |item| pricing_service.price_for(item) }
   end
 end
 
-klass = Order.class_with(pricing_repo: PricingRepo.new)
+klass = Order.class_with(pricing_service: PricingService.new)
 klass.new([item1, item2]).total
 ```
 
 You can also have default values, as seen below
 
 ```
-class MyClassWithDefaults
+class Order
   include WryInject
 
-  wry_defaults amount: 3, units: 7
+  wry_defaults pricing_service: PricingService.new, logger: Logger.new
+
+  def initialize(items)
+    @items = items
+  end
 
   def total
-    units * amount
+    logger.log("retrieving total")
+    @items.sum { |item| pricing_service.price_for(item) }
   end
 end
 
-MyClassWithDefaults.class_with_defaults.new.total
-MyClassWithDefaults.class_with(amount: 4).new.total
+Order.class_with_defaults.new([item1]).total
+Order.class_with(pricing_service: MockPricingService.new).new([item1]).total
 ```
 
 You can also add a namespace so the injected variables don't get lost in all your other methods:
 
 ```
-class MyClassWithNamespace
+class Order
   include WryInject
   wry_namespace :wry
-  wry_defaults amount: 5, units: 7
+  wry_defaults pricing_service: PricingService.new, logger: Logger.new
+
+  def initialize(items)
+    @items = items
+  end
 
   def total
-    wry.units * wry.amount
+    wry.logger.log("retrieving total")
+    @items.sum { |item| wry.pricing_service.price_for(item) }
   end
 end
 
-MyClassWithNamespace.class_with(amount: 4).new.total
-MyClassWithNamespace.class_with_defaults.new.total
+Order.class_with_defaults.new([item1]).total
+Order.class_with(pricing_service: MockPricingService.new).new([item1]).total
 ```
