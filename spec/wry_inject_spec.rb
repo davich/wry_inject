@@ -20,6 +20,16 @@ class MyClass
   end
 end
 
+class MyClassWithDefaults
+  include WryInject
+
+  wry_defaults amount: 3, units: 7
+
+  def total
+    units * amount
+  end
+end
+
 RSpec.describe WryInject do
   subject { MyClass.class_with(amount: 5, units: 6) }
 
@@ -33,5 +43,15 @@ RSpec.describe WryInject do
 
   it "can use injected, constructor, and method arg variables" do
     expect(subject.new(9).total(2)).to eq(540)
+  end
+
+  context "with defaults" do
+    it "handles default values" do
+      expect(MyClassWithDefaults.class_with_defaults.new.total).to eq(21)
+    end
+
+    it "handles overwriting one default value" do
+      expect(MyClassWithDefaults.class_with(amount: 4).new.total).to eq(28)
+    end
   end
 end
