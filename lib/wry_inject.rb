@@ -5,11 +5,22 @@ module WryInject
 
   module ClassMethods
     def class_with(args)
-      default_args = @default_args || {}
+      args = (@default_args || {}).merge(args)
+      namespace = @namespace
+
       Class.new(self) do
-        (default_args.merge(args)).each do |k, v|
-          define_method k do
-            v
+        private
+
+        if namespace
+          struct = Struct.new(*args.keys).new(*args.values)
+          define_method namespace do
+            struct
+          end
+        else
+          args.each do |k, v|
+            define_method k do
+              v
+            end
           end
         end
       end
@@ -21,6 +32,10 @@ module WryInject
 
     def wry_defaults(args)
       @default_args = args
+    end
+
+    def wry_namespace(namespace)
+      @namespace = namespace
     end
   end
 end

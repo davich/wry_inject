@@ -30,6 +30,16 @@ class MyClassWithDefaults
   end
 end
 
+class MyClassWithNamespace
+  include WryInject
+  wry_namespace :wry
+  wry_defaults amount: 5, units: 7
+
+  def total
+    wry.units * wry.amount
+  end
+end
+
 RSpec.describe WryInject do
   subject { MyClass.class_with(amount: 5, units: 6) }
 
@@ -45,6 +55,11 @@ RSpec.describe WryInject do
     expect(subject.new(9).total(2)).to eq(540)
   end
 
+  it "makes the injected object methods private" do
+    expect { subject.new(0).units }.to raise_error(NoMethodError)
+    expect { subject.new(0).amount }.to raise_error(NoMethodError)
+  end
+
   context "with defaults" do
     it "handles default values" do
       expect(MyClassWithDefaults.class_with_defaults.new.total).to eq(21)
@@ -52,6 +67,16 @@ RSpec.describe WryInject do
 
     it "handles overwriting one default value" do
       expect(MyClassWithDefaults.class_with(amount: 4).new.total).to eq(28)
+    end
+  end
+
+  context "with namespace" do
+    it "handles default values" do
+      expect(MyClassWithNamespace.class_with_defaults.new.total).to eq(35)
+    end
+
+    it "makes namespace method private" do
+      expect { MyClassWithNamespace.class_with_defaults.new.wry }.to raise_error(NoMethodError)
     end
   end
 end
