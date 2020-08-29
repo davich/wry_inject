@@ -12,7 +12,7 @@ This gem aims to provide dependency injection functionality with the least amoun
 
 include `WryInject` in your class to add a `class_with` class method. This can be used to inject dependencies into your class and returns a new child class.
 
-```
+```ruby
 require 'wry_inject'
 
 class Order
@@ -33,7 +33,7 @@ klass.new([item1, item2]).total
 
 You can also have default values, as seen below
 
-```
+```ruby
 class Order
   include WryInject
 
@@ -55,7 +55,7 @@ Order.class_with(pricing_service: MockPricingService.new).new([item1]).total
 
 You can also add a namespace so the injected variables don't polute the namespace. As you can see in the above examples, dependencies can get lost in all your other methods. This allows more visibility about what the dependencies are.
 
-```
+```ruby
 class Order
   include WryInject
   wry_namespace :wry
